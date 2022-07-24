@@ -67,7 +67,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             headers['Authorization'] = request.META.get('HTTP_AUTHORIZATION', None)
         # Generate the query
         params = []
-        for key in request.GET.iterkeys():
+        for key in request.GET:
             params.append("%s=%s" % (key, request.GET.get(key, None)))
         query = "&".join(params)
 
