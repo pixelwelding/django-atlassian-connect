@@ -5,7 +5,6 @@ import logging
 import atlassian_jwt
 from atlassian_jwt.url_utils import hash_url, parse_query_params
 
-import threading
 import jwt
 from jwt import DecodeError
 
@@ -15,11 +14,9 @@ from django.db import models, connections
 from django.db.utils import ConnectionDoesNotExist 
 
 from django.core.exceptions import PermissionDenied
-from django_atlassian.models.connect import SecurityContext
-from django_atlassian.models.djira import create_model, populate_model
+from django_atlassian_connect.models.connect import SecurityContext
 
-logger = logging.getLogger('django_atlassian')
-lock = threading.Lock()
+logger = logging.getLogger('django_atlassian_connect')
 
 class DjangoAtlassianAuthenticator(atlassian_jwt.Authenticator):
     def get_shared_secret(self, client_key):

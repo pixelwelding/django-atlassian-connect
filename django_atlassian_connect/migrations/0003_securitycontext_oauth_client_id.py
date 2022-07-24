@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_atlassian', '0002_securitycontext_product_type'),
+        ('django_atlassian_connect', '0002_securitycontext_product_type'),
     ]
 
     operations = [

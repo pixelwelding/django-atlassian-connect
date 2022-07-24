@@ -90,7 +90,7 @@ class ApplicationDescriptor(TemplateView):
         return self.application_name
 
     def get_template_names(self):
-        return ['django_atlassian/{}/atlassian-connect.json'.format(self.get_application_name())]
+        return ['django_atlassian-connect/{}/atlassian-connect.json'.format(self.get_application_name())]
 
     def get_name(self):
         if self.name is None:

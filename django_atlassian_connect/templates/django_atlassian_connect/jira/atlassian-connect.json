@@ -14,7 +14,7 @@
     "lifecycle":
         {% block lifecycle %}
         {
-            "installed": "{% url 'django-atlassian-installed' %}"
+            "installed": "{% url 'django-atlassian-connect-installed' %}"
         },
         {% endblock %}
     "scopes": 

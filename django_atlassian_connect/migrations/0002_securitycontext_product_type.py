@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     
     def set_my_defaults(apps, schema_editor):
-        SecurityContext = apps.get_model('django_atlassian', 'SecurityContext')
+        SecurityContext = apps.get_model('django_atlassian_connect', 'SecurityContext')
         for sc in SecurityContext.objects.all():
             if sc.host.endswith('wiki'):
                 sc.product_type = 'confluence'
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
 
 
     dependencies = [
-        ('django_atlassian', '0001_initial'),
+        ('django_atlassian_connect', '0001_initial'),
     ]
 
     operations = [
