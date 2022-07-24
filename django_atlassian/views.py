@@ -5,67 +5,82 @@ from importlib import import_module
 import json
 import jwt
 
+import django
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 from django.conf import settings
 from django.apps import apps
 from django.views.generic.base import TemplateView
 from django.core.exceptions import ImproperlyConfigured
 from django.template import engines
+from django.utils.decorators import method_decorator
 
-from models.connect import SecurityContext
+from .models.connect import SecurityContext
 
-@csrf_exempt
-def installed(request):
+class LifecycleInstalled(View):
     """
     Main view to handle the signal of the cloud instance when the addon
     has been installed
     """
-    try:
-        post = json.loads(request.body)
-        key = post['key']
-        shared_secret = post['sharedSecret']
-        client_key = post['clientKey']
-        host = post['baseUrl']
-        product_type = post['productType']
-        oauth_client_id = post.get('oauthClientId')
-    except MultiValueDictKeyError:
-        return HttpResponseBadRequest()
-
-    # Store the security context
-    # https://developer.atlassian.com/cloud/jira/platform/authentication-for-apps/
-    sc = SecurityContext.objects.filter(key=key, host=host).first()
-    if sc:
-        update = False
-        # Confirm that the shared key is the same, otherwise update it
-        if sc.shared_secret != shared_secret:
+    def post(self, request, *args, **kwargs):
+        try:
+            post = json.loads(request.body)
+            key = post['key']
+            shared_secret = post['sharedSecret']
+            client_key = post['clientKey']
+            host = post['baseUrl']
+            product_type = post['productType']
+            oauth_client_id = post.get('oauthClientId')
+        except MultiValueDictKeyError:
+            return HttpResponseBadRequest()
+    
+        # Store the security context
+        # https://developer.atlassian.com/cloud/jira/platform/authentication-for-apps/
+        sc = SecurityContext.objects.filter(key=key, host=host).first()
+        if sc:
+            update = False
+            # Confirm that the shared key is the same, otherwise update it
+            if sc.shared_secret != shared_secret:
+                sc.shared_secret = shared_secret
+                update = True
+            if sc.client_key != client_key:
+                sc.client_key = client_key
+                update = True
+            if sc.oauth_client_id != oauth_client_id:
+                sc.oauth_client_id = oauth_client_id
+                update = True
+            if update:
+                sc.save()
+        else:
+            # Create a new entry on our database of connections
+            sc = SecurityContext()
+            sc.key = key
+            sc.host = host
             sc.shared_secret = shared_secret
-            update = True
-        if sc.client_key != client_key:
             sc.client_key = client_key
-            update = True
-        if sc.oauth_client_id != oauth_client_id:
+            sc.product_type = product_type
             sc.oauth_client_id = oauth_client_id
-            update = True
-        if update:
             sc.save()
-    else:
-        # Create a new entry on our database of connections
-        sc = SecurityContext()
-        sc.key = key
-        sc.host = host
-        sc.shared_secret = shared_secret
-        sc.client_key = client_key
-        sc.product_type = product_type
-        sc.oauth_client_id = oauth_client_id
-        sc.save()
+    
+        return HttpResponse(status=204)
 
-    return HttpResponse(status=204)
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LifecycleInstalled, self).dispatch(*args, **kwargs)
 
 
 class ApplicationDescriptor(TemplateView):
     content_type = 'application/json'
+    name = None
+    description = None
+    key = None
+    vendor_name = None
+    vendor_url = None
+    scopes = None
+    modules = None
+    base_url = None
 
     def get_application_name(self):
         if self.application_name is None:
@@ -77,10 +92,50 @@ class ApplicationDescriptor(TemplateView):
     def get_template_names(self):
         return ['django_atlassian/{}/atlassian-connect.json'.format(self.get_application_name())]
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(ApplicationDescriptor, self).get_context_data(*args, **kwargs)
-        base_url = self.request.build_absolute_uri('/')
-        context['base_url'] = getattr(settings, 'URL_BASE', base_url)
+    def get_name(self):
+        if self.name is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_{}_NAME'.format(self.get_application_name().upper()))
+        else:
+            return self.name
+
+    def get_description(self):
+        if self.description is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_{}_DESCRIPTION'.format(self.get_application_name().upper()))
+        else:
+            return self.description
+
+    def get_key(self):
+        if self.key is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_{}_KEY'.format(self.get_application_name().upper()))
+        else:
+            return self.key
+
+    def get_vendor_name(self):
+        if self.vendor_name is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_VENDOR_NAME')
+        else:
+            return self.vendor_name
+
+    def get_vendor_url(self):
+        if self.vendor_url is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_VENDOR_URL')
+        else:
+            return self.vendor_url
+
+    def get_base_url(self):
+        if self.scopes is None:
+            base_url = self.request.build_absolute_uri('/')
+            return getattr(settings, 'URL_BASE', base_url)
+        else:
+            return self.base_url
+
+    def get_scopes(self):
+        if self.scopes is None:
+            return getattr(settings, 'DJANGO_ATLASSIAN_{}_SCOPES'.format(self.get_application_name().upper()))
+        else:
+            return self.scopes
+
+    def get_modules(self):
         # Get all the contents of the registered apps application_name_modules.py files
         modules = {}
         for app in apps.get_app_configs():
@@ -93,19 +148,33 @@ class ApplicationDescriptor(TemplateView):
                         modules[k] = modules[k] + v
             except ImportError:
                 continue
-
-        # Process the contents of the modules by the tenplate engine
         django_engine = engines['django']
         j = json.dumps(modules)
-        j = "{% load staticfiles %} " + j
+        if django.VERSION[0] > 1:
+            j = "{% load static %} " + j
+        else:
+            j = "{% load staticfiles %} " + j
+
         template = django_engine.from_string(j)
-        context['modules'] = template.render()
+        return template.render()
+
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(ApplicationDescriptor, self).get_context_data(*args, **kwargs)
+
+        # Process the contents of the modules by the tenplate enginei
+        modules = self.get_modules()
+        # Get the base url
+
+        context['base_url'] = self.get_base_url()
+        context['modules'] = self.get_modules()
         # Get the needed settings or abort
-        context['name'] = getattr(settings, 'DJANGO_ATLASSIAN_{}_NAME'.format(self.get_application_name().upper()))
-        context['description'] = getattr(settings, 'DJANGO_ATLASSIAN_{}_DESCRIPTION'.format(self.get_application_name().upper()))
-        context['key'] = getattr(settings, 'DJANGO_ATLASSIAN_{}_KEY'.format(self.get_application_name().upper()))
-        context['vendor_name'] = getattr(settings, 'DJANGO_ATLASSIAN_VENDOR_NAME')
-        context['vendor_url'] = getattr(settings, 'DJANGO_ATLASSIAN_VENDOR_URL')
+        context['name'] = self.get_name()
+        context['description'] = self.get_description()
+        context['key'] = self.get_key()
+        context['vendor_name'] = self.get_vendor_name()
+        context['vendor_url'] = self.get_vendor_url()
+        context['scopes'] = self.get_scopes()
 
         return context
 
