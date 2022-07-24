@@ -10,12 +10,24 @@
     "authentication": {
         "type": "jwt"
     },
-    "lifecycle": {
-        "installed": "{% url 'django-atlassian-installed' %}"
-    },
-    "scopes": [
-        "read", "write", "delete", "act_as_user"
-    ],
     "apiVersion": 1,
-    "modules": {{ modules|safe }}
+    "lifecycle":
+        {% block lifecycle %}
+        {
+            "installed": "{% url 'django-atlassian-installed' %}"
+        },
+        {% endblock %}
+    "scopes": 
+        {% block scopes %}
+        [
+          {% for s in scopes %}
+            "{{ s }}"
+            {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        {% endblock %}
+    "modules":
+        {% block modules %}
+        {{ modules|safe }},
+        {% endblock %}
 }
