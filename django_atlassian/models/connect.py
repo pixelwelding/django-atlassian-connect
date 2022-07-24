@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import sys
 import jwt
 import time
 import json
-import urlparse
-import urllib
-import hashlib
-import base64
+
 import atlassian_jwt
 from atlassian_jwt.url_utils import hash_url
 import requests
