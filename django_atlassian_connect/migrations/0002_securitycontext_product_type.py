@@ -6,34 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    
     def set_my_defaults(apps, schema_editor):
-        SecurityContext = apps.get_model('django_atlassian_connect', 'SecurityContext')
+        SecurityContext = apps.get_model("django_atlassian_connect", "SecurityContext")
         for sc in SecurityContext.objects.all():
-            if sc.host.endswith('wiki'):
-                sc.product_type = 'confluence'
+            if sc.host.endswith("wiki"):
+                sc.product_type = "confluence"
             else:
-                sc.product_type = 'jira'
+                sc.product_type = "jira"
             sc.save()
-    
+
     def reverse_func(apps, schema_editor):
         pass
 
-
     dependencies = [
-        ('django_atlassian_connect', '0001_initial'),
+        ("django_atlassian_connect", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='securitycontext',
-            name='product_type',
-            field=models.CharField(null=True, max_length=512)
+            model_name="securitycontext",
+            name="product_type",
+            field=models.CharField(null=True, max_length=512),
         ),
         migrations.RunPython(set_my_defaults, reverse_func),
         migrations.AlterField(
-            model_name='securitycontext',
-            name='product_type',
-            field=models.CharField(null=False, max_length=512)
+            model_name="securitycontext",
+            name="product_type",
+            field=models.CharField(null=False, max_length=512),
         ),
     ]

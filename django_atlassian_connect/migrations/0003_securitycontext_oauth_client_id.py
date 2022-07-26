@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_atlassian_connect', '0002_securitycontext_product_type'),
+        ("django_atlassian_connect", "0002_securitycontext_product_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='securitycontext',
-            name='oauth_client_id',
+            model_name="securitycontext",
+            name="oauth_client_id",
             field=models.CharField(blank=True, max_length=512, null=True),
         ),
     ]
