@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to django-atlassian's documentation!
-============================================
+Welcome to django-atlassian-connect's documentation!
+====================================================
 
 .. toctree::
    :numbered:
@@ -12,7 +12,6 @@ Welcome to django-atlassian's documentation!
    installation
    configuration
    contributing
-   references
    license
 
 
