@@ -48,18 +48,6 @@ class DjangoAtlassianAuthenticator(atlassian_jwt.Authenticator):
 
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
-    def _create_database(self, name, sc):
-        new_db = {}
-        new_db["id"] = name
-        new_db["ENGINE"] = "django_atlassian.backends.jira"
-        new_db["NAME"] = sc.host
-        new_db["USER"] = ""
-        new_db["PASSWORD"] = ""
-        new_db["HOST"] = ""
-        new_db["PORT"] = ""
-        new_db["SECURITY"] = sc
-        return new_db
-
     def _check_jwt(self, request, qsh_check_exempt=False):
         headers = {}
         query = ""
