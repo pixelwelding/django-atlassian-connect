@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import views
 from django.conf.urls import url
+
+from django_atlassian_connect import views
 
 urlpatterns = [
     url(
