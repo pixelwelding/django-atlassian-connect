@@ -1,0 +1,43 @@
+name: Python / Django
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  testing:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        python: [3.7,3.8,3.9]
+        django: [22,30]
+    env:
+      TOXENV: py${{ matrix.python }}-django${{ matrix.django }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+
+      - name: Install Poetry deps
+        run: |
+          poetry install
+
+      - name: Test with tox
+        run: |
+          poetry run tox
