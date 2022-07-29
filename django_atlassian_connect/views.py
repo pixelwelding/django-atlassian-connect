@@ -94,7 +94,7 @@ class ApplicationDescriptor(TemplateView):
 
     def get_template_names(self):
         return [
-            "django_atlassian-connect/{}/atlassian-connect.json".format(
+            "django_atlassian_connect/{}/atlassian-connect.json".format(
                 self.get_application_name()
             )
         ]
@@ -141,7 +141,7 @@ class ApplicationDescriptor(TemplateView):
             return self.vendor_url
 
     def get_base_url(self):
-        if self.scopes is None:
+        if self.base_url is None:
             base_url = self.request.build_absolute_uri("/")
             return getattr(settings, "URL_BASE", base_url)
         else:
@@ -188,9 +188,8 @@ class ApplicationDescriptor(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(ApplicationDescriptor, self).get_context_data(*args, **kwargs)
 
-        # Process the contents of the modules by the tenplate enginei
+        # Process the contents of the modules by the tenplate engine
         modules = self.get_modules()
-        # Get the base url
 
         context["base_url"] = self.get_base_url()
         context["modules"] = self.get_modules()
