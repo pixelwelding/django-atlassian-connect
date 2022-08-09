@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_atlassian_connect",
-    "helloworld",
+    "example.helloworld",
 )
 
 MIDDLEWARE = [
@@ -93,7 +93,7 @@ LOGGING = {
     },
 }
 
-ROOT_URLCONF = "urls"
+ROOT_URLCONF = "example.urls"
 
 if not DEBUG:
     raise Exception("This settings file can only be used with DEBUG=True")

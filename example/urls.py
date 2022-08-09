@@ -8,5 +8,5 @@ urlpatterns = [
     path("", debug.default_urlconf),
     path("admin/", admin.site.urls),
     path("ace/", include("django_atlassian_connect.urls")),
-    path("helloworld/", include("helloworld.urls")),
+    path("helloworld/", include("example.helloworld.urls")),
 ]

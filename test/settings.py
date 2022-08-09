@@ -71,7 +71,7 @@ LOGGING = {
     },
 }
 
-ROOT_URLCONF = "tests.urls"
+ROOT_URLCONF = "test.urls"
 
 if not DEBUG:
     raise Exception("This settings file can only be used with DEBUG=True")
