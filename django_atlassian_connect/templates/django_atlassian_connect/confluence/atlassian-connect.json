@@ -27,6 +27,6 @@
         {% endblock %}
     "modules":
         {% block modules %}
-        {{ modules|safe }},
+        {{ modules|safe }}
         {% endblock %}
 }
