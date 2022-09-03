@@ -43,7 +43,7 @@ class SecurityContext(models.base.Model):
         return token
 
     def create_session_token(self, account=None):
-        self.create_token(account=account)
+        return self.create_token(account=account)
 
     def create_user_token(self, account_id):
         now = int(time.time())
