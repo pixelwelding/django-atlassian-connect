@@ -18,11 +18,7 @@ from django_atlassian_connect.models.connect import SecurityContext
 logger = logging.getLogger("django_atlassian_connect")
 
 
-class DjangoAtlassianAuthenticator(atlassian_jwt.Authenticator):
-    def get_shared_secret(self, client_key):
-        sc = SecurityContext.objects.filter(client_key=client_key).get()
-        return sc.shared_secret
-
+class DjangoAtlassianConnectAuthenticator(atlassian_jwt.Authenticator):
     def claims(self, http_method, url, headers=None, qsh_check_exempt=False):
         token = self._get_token(headers=headers, query_params=parse_query_params(url))
 
@@ -36,10 +32,11 @@ class DjangoAtlassianAuthenticator(atlassian_jwt.Authenticator):
             raise DecodeError("qsh does not match")
 
         # verify shared secret
+        sc = SecurityContext.objects.filter(client_key=claims["iss"]).get()
         jwt.decode(
             token,
             audience=claims.get("aud"),
-            key=self.get_shared_secret(claims["iss"]),
+            key=sc.shared_secret,
             algorithms=self.algorithms,
             leeway=self.leeway,
         )
@@ -59,7 +56,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             params.append("%s=%s" % (key, request.GET.get(key, None)))
         query = "&".join(params)
 
-        auth = DjangoAtlassianAuthenticator()
+        auth = DjangoAtlassianConnectAuthenticator()
         uri = request.path
         if query:
             uri = "%s?%s" % (uri, query)
@@ -83,4 +80,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         sc = SecurityContext.objects.filter(client_key=client_key).get()
         request.atlassian_sc = sc
         request.atlassian_account_id = claims.get("sub")
+        request.atlassian_session_token = sc.create_session_token(
+            request.atlassian_account_id
+        )
         return None

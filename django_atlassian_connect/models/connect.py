@@ -5,7 +5,6 @@ import json
 import sys
 import time
 
-import atlassian_jwt
 import jwt
 import requests
 from atlassian_jwt.url_utils import hash_url
@@ -25,28 +24,26 @@ class SecurityContext(models.base.Model):
     product_type = models.CharField(max_length=512, null=False, blank=False)
     oauth_client_id = models.CharField(max_length=512, null=True, blank=True)
 
-    def create_token(self, method, uri, account=None):
-        if not account:
-            token = atlassian_jwt.encode_token(
-                method, uri, self.client_key, self.shared_secret
-            )
-        else:
-            now = int(time.time())
-            token = jwt.encode(
-                key=self.shared_secret,
-                algorithm="HS256",
-                payload={
-                    "aud": self.client_key,
-                    "sub": account,
-                    "iss": self.client_key,
-                    "qsh": hash_url(method, uri),
-                    "iat": now,
-                    "exp": now + 30,
-                },
-            )
-            if isinstance(token, bytes):
-                token = token.decode("utf8")
+    def create_token(self, method=None, uri=None, account=None):
+        now = int(time.time())
+        payload = {
+            "aud": self.client_key,
+            "iss": self.client_key,
+            "iat": now,
+            "exp": now + 30,
+        }
+        if method and uri:
+            payload["qsh"] = hash_url(method, uri)
+        if account:
+            payload["sub"] = account
+
+        token = jwt.encode(key=self.shared_secret, algorithm="HS256", payload=payload)
+        if isinstance(token, bytes):
+            token = token.decode("utf8")
         return token
+
+    def create_session_token(self, account=None):
+        self.create_token(account=account)
 
     def create_user_token(self, account_id):
         now = int(time.time())
