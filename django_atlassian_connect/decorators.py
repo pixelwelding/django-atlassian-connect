@@ -5,6 +5,10 @@ from functools import wraps
 
 
 def jwt_required(view_func):
+    """
+    Make the function be validated through JWTAuthenticationMiddlewareand processed if the JWT is valid or raise a PermissionDenied if not.
+    """
+
     def decorator(*args, **kwargs):
         return view_func(*args, **kwargs)
 
@@ -13,7 +17,10 @@ def jwt_required(view_func):
 
 
 def jwt_qsh_exempt(view_func):
-    """Mark a view function as being exempt from the qsh claim protection."""
+    """
+    Mark a view function as being exempt from the qsh claim protection.
+    In practice this means that the actual path requested along with the query parameters won't be checked by the JWTAuthenticationMiddleware.
+    """
 
     def decorator(*args, **kwargs):
         return view_func(*args, **kwargs)
