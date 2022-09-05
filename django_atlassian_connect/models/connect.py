@@ -10,6 +10,8 @@ import requests
 from atlassian_jwt.url_utils import hash_url
 from django.db import models
 
+from django_atlassian_connect.managers import SecurityContextManager
+
 
 class SecurityContext(models.base.Model):
     """
@@ -23,6 +25,8 @@ class SecurityContext(models.base.Model):
     host = models.CharField(max_length=512, null=False, blank=False)
     product_type = models.CharField(max_length=512, null=False, blank=False)
     oauth_client_id = models.CharField(max_length=512, null=True, blank=True)
+
+    objects = SecurityContextManager()
 
     def create_token(self, method=None, uri=None, account=None):
         now = int(time.time())
@@ -71,5 +75,8 @@ class SecurityContext(models.base.Model):
         )
         return r.json()["access_token"]
 
-    def __unicode__(self):
-        return "%s: %s" % (self.key, self.host)
+    def natural_key(self):
+        return (self.key, self.client_key, self.product_type)
+
+    def __str__(self):
+        return "[%s] %s: %s" % (self.key, self.client_key, self.host)
