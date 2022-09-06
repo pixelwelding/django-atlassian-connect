@@ -83,4 +83,5 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         request.atlassian_session_token = sc.create_session_token(
             request.atlassian_account_id
         )
+        request.atlassian_host = sc.host
         return None
