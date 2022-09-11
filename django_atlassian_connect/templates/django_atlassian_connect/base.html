@@ -3,6 +3,7 @@
   <head>
     {% block head %}
     <meta name="hostBaseUrl" content="{{request.atlassian_host}}"/>
+    <meta name="localBaseUrl" content="{{request.atlassian_client}}"/>
     <meta name="userAccountId" content="{{request.atlassian_account_id}}"/>
     <meta name="token" content="{{request.atlassian_session_token}}"/>
     <script src="https://connect-cdn.atl-paas.net/all.js"></script>

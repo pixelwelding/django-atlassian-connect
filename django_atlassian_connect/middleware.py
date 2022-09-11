@@ -84,4 +84,5 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             request.atlassian_account_id
         )
         request.atlassian_host = sc.host
+        request.atlassian_client = request.build_absolute_uri("/")
         return None
