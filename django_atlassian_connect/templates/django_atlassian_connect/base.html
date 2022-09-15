@@ -7,9 +7,10 @@
     <meta name="localBaseUrl" content="{{request.atlassian_client}}"/>
     <meta name="userAccountId" content="{{request.atlassian_account_id}}"/>
     <meta name="token" content="{{request.atlassian_session_token}}"/>
-    {% block ajs %}
-      {% ajs 'True' 'False' 'True' 'False' %}
     {% endblock %}
+
+    {% block ajs %}
+    {% ajs 'True' 'False' 'True' 'False' %}
     {% endblock %}
   </head>
   <body>
