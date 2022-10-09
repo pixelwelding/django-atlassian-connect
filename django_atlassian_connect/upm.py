@@ -2,6 +2,8 @@
 # https://ecosystem.atlassian.net/wiki/spaces/UPM/pages/6094960/UPM+REST+API
 # https://developer.atlassian.com/platform/marketplace/registering-apps/
 # https://github.com/spartez/jira-addon-install-tool
+import re
+
 import requests
 
 
@@ -37,3 +39,28 @@ class UPM:
             headers=headers,
             json={"pluginUri": descriptor},
         )
+        r.raise_for_status()
+        # Get the task id
+        # Response in the form /rest/plugins/1.0/pending/<task>
+        # Header location with the same value
+        location = r.headers["location"]
+        task_id = re.findall("/rest/plugins/1.0/pending/(.*)", location)[0]
+        return task_id
+
+    def pending(self, task):
+        headers = {"Content-Type": "application/json"}
+        url = f"{self.host}/rest/plugins/1.0/pending/{task}"
+        r = requests.get(url, auth=(self.user, self.password), headers=headers)
+        r.raise_for_status()
+        data = r.json()
+        error = None
+        # All fine if contentType is "application/vnd.atl.plugins.install.installing+json"
+        if (
+            data["status"]["contentType"]
+            == "application/vnd.atl.plugins.task.install.err+json"
+        ):
+            if "errorMessage" in data["status"]:
+                error = data["status"]["errorMessage"]
+            else:
+                error = data["status"]["subCode"]
+        return [data["status"]["done"], error]
