@@ -52,15 +52,24 @@ class UPM:
         url = f"{self.host}/rest/plugins/1.0/pending/{task}"
         r = requests.get(url, auth=(self.user, self.password), headers=headers)
         r.raise_for_status()
-        data = r.json()
-        error = None
-        # All fine if contentType is "application/vnd.atl.plugins.install.installing+json"
-        if (
-            data["status"]["contentType"]
-            == "application/vnd.atl.plugins.task.install.err+json"
+        content_type = r.headers["Content-Type"]
+        # We have done a 303 redirection and everything went ok
+        if content_type == "application/vnd.atl.plugins.plugin+json;charset=UTF-8":
+            return [True, None]
+        # All fine
+        elif (
+            content_type
+            == "application/vnd.atl.plugins.install.installing+json;charset=UTF-8"
         ):
-            if "errorMessage" in data["status"]:
-                error = data["status"]["errorMessage"]
-            else:
-                error = data["status"]["subCode"]
-        return [data["status"]["done"], error]
+            data = r.json()
+            error = None
+            # All fine if contentType is "application/vnd.atl.plugins.install.installing+json"
+            if (
+                data["status"]["contentType"]
+                == "application/vnd.atl.plugins.task.install.err+json"
+            ):
+                if "errorMessage" in data["status"]:
+                    error = data["status"]["errorMessage"]
+                else:
+                    error = data["status"]["subCode"]
+            return [data["status"]["done"], error]
