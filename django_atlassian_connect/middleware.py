@@ -69,6 +69,12 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         if not jwt_required:
             return None
 
+        # We expect this request to have a valid jwt, threfore it is called
+        # from atlassian. Check the lic query parameter
+        lic = request.GET.get("lic", "active")
+        if lic == "none":
+            raise PermissionDenied
+
         jwt_qsh_exempt = getattr(view_func, "jwt_qsh_exempt", False)
 
         try:

@@ -83,6 +83,7 @@ class ApplicationDescriptor(TemplateView):
     scopes = None
     modules = None
     base_url = None
+    licensing = None
 
     def get_application_name(self):
         if self.application_name is None:
@@ -185,6 +186,12 @@ class ApplicationDescriptor(TemplateView):
         template = django_engine.from_string(j)
         return template.render()
 
+    def get_licensing(self):
+        if self.licensing is None:
+            return getattr(settings, "DJANGO_ATLASSIAN_LICENSING")
+        else:
+            return self.licensing
+
     def get_context_data(self, *args, **kwargs):
         context = super(ApplicationDescriptor, self).get_context_data(*args, **kwargs)
 
@@ -200,6 +207,7 @@ class ApplicationDescriptor(TemplateView):
         context["vendor_name"] = self.get_vendor_name()
         context["vendor_url"] = self.get_vendor_url()
         context["scopes"] = self.get_scopes()
+        context["licensing"] = "true" if self.get_licensing() else "false"
 
         return context
 
