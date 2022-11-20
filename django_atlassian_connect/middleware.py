@@ -18,7 +18,7 @@ from django_atlassian_connect.models.connect import SecurityContext
 logger = logging.getLogger("django_atlassian_connect")
 
 
-class DjangoAtlassianConnectAuthenticator(atlassian_jwt.Authenticator):
+class Authenticator(atlassian_jwt.Authenticator):
     def claims(self, http_method, url, headers=None, qsh_check_exempt=False):
         token = self._get_token(headers=headers, query_params=parse_query_params(url))
 
@@ -44,7 +44,7 @@ class DjangoAtlassianConnectAuthenticator(atlassian_jwt.Authenticator):
         return claims
 
 
-class JWTAuthenticationMiddleware(MiddlewareMixin):
+class AuthenticationMiddleware(MiddlewareMixin):
     def _check_jwt(self, request, qsh_check_exempt=False):
         headers = {}
         query = ""
@@ -56,7 +56,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             params.append("%s=%s" % (key, request.GET.get(key, None)))
         query = "&".join(params)
 
-        auth = DjangoAtlassianConnectAuthenticator()
+        auth = Authenticator()
         uri = request.path
         if query:
             uri = "%s?%s" % (uri, query)
@@ -70,9 +70,10 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             return None
 
         # We expect this request to have a valid jwt, threfore it is called
-        # from atlassian. Check the lic query parameter
+        # from Atlassian. Check the lic query parameter
+        enable_licensing = getattr(view_func, "enable_licensing", False)
         lic = request.GET.get("lic", "active")
-        if lic == "none":
+        if lic == "none" and enable_licensing:
             raise PermissionDenied
 
         jwt_qsh_exempt = getattr(view_func, "jwt_qsh_exempt", False)

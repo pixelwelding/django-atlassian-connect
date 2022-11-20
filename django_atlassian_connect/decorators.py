@@ -6,7 +6,7 @@ from functools import wraps
 
 def jwt_required(view_func):
     """
-    Make the function be validated through JWTAuthenticationMiddlewareand processed if the JWT is valid or raise a PermissionDenied if not.
+    Make the function be validated through JWTAuthenticationMiddleware and processed if the JWT is valid or raise a PermissionDenied if not.
     """
 
     def decorator(*args, **kwargs):
@@ -27,3 +27,18 @@ def jwt_qsh_exempt(view_func):
 
     decorator.jwt_qsh_exempt = True
     return wraps(view_func)(decorator)
+
+
+def enable_licensing(enable):
+    """
+    Mark a view function that the licensing is enabled on that request
+    """
+
+    def function_decorator(view_func):
+        def decorator(*args, **kwargs):
+            return view_func(*args, **kwargs)
+
+        decorator.enable_licensing = enable
+        return wraps(view_func)(decorator)
+
+    return function_decorator
