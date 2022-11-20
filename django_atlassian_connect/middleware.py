@@ -74,7 +74,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
         enable_licensing = getattr(view_func, "enable_licensing", False)
         lic = request.GET.get("lic", "active")
         if lic == "none" and enable_licensing:
-            raise PermissionDenied
+            raise PermissionDenied("No valid license found")
 
         jwt_qsh_exempt = getattr(view_func, "jwt_qsh_exempt", False)
 
@@ -82,7 +82,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
             claims = self._check_jwt(request, qsh_check_exempt=jwt_qsh_exempt)
             client_key = claims["iss"]
         except Exception as e:
-            raise PermissionDenied
+            raise PermissionDenied("Invalid JWT")
 
         sc = SecurityContext.objects.filter(client_key=client_key).get()
         request.atlassian_sc = sc
