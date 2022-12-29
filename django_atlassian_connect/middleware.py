@@ -70,12 +70,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
             return None
 
         # We expect this request to have a valid jwt, threfore it is called
-        # from Atlassian. Check the lic query parameter
-        enable_licensing = getattr(view_func, "enable_licensing", False)
-        lic = request.GET.get("lic", "active")
-        if lic == "none" and enable_licensing:
-            raise PermissionDenied("No valid license found")
-
+        # from Atlassian.
         jwt_qsh_exempt = getattr(view_func, "jwt_qsh_exempt", False)
 
         try:
@@ -92,4 +87,5 @@ class AuthenticationMiddleware(MiddlewareMixin):
         )
         request.atlassian_host = sc.host
         request.atlassian_client = request.build_absolute_uri("/")
+        request.atlassian_license = request.GET.get("lic", "active")
         return None

@@ -27,18 +27,3 @@ def jwt_qsh_exempt(view_func):
 
     decorator.jwt_qsh_exempt = True
     return wraps(view_func)(decorator)
-
-
-def enable_licensing(enable):
-    """
-    Mark a view function that the licensing is enabled on that request
-    """
-
-    def function_decorator(view_func):
-        def decorator(*args, **kwargs):
-            return view_func(*args, **kwargs)
-
-        decorator.enable_licensing = enable
-        return wraps(view_func)(decorator)
-
-    return function_decorator

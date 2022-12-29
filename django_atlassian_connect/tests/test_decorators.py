@@ -1,11 +1,7 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
 
-from django_atlassian_connect.decorators import (
-    enable_licensing,
-    jwt_qsh_exempt,
-    jwt_required,
-)
+from django_atlassian_connect.decorators import jwt_qsh_exempt, jwt_required
 
 
 class JWTRequiredDecoratorTests(TestCase):
@@ -31,13 +27,3 @@ class JWTQshExemptTests(TestCase):
             pass
 
         self.assertTrue(view.jwt_qsh_exempt)
-
-
-class EnableLicensingTests(TestCase):
-    @override_settings(ENABLE_LICENSING=True)
-    def test_func_decorator(self):
-        @enable_licensing(settings.ENABLE_LICENSING)
-        def view(request):
-            pass
-
-        self.assertTrue(view.enable_licensing)
