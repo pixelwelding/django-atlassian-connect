@@ -8,7 +8,7 @@ import django
 import jwt
 from django.apps import apps
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template import engines
 from django.utils.datastructures import MultiValueDictKeyError
@@ -40,7 +40,15 @@ class LifecycleInstalled(View):
 
         # Store the security context
         # https://developer.atlassian.com/cloud/jira/platform/authentication-for-apps/
-        sc = SecurityContext.objects.filter(key=key, host=host).first()
+        # Check if a security context with only the key exists or one with the
+        # same host
+        try:
+            sc = SecurityContext.objects.get(key=key)
+        except ObjectDoesNotExist:
+            try:
+                sc = SecurityContext.objects.get(host=host)
+            except ObjectDoesNotExist:
+                sc = None
         if sc:
             update = False
             # Confirm that the shared key is the same, otherwise update it
@@ -52,6 +60,9 @@ class LifecycleInstalled(View):
                 update = True
             if sc.oauth_client_id != oauth_client_id:
                 sc.oauth_client_id = oauth_client_id
+                update = True
+            if sc.host != host:
+                sc.host = host
                 update = True
             if update:
                 sc.save()
