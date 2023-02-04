@@ -15,7 +15,10 @@
     "lifecycle":
         {% block lifecycle %}
         {
-            "installed": "{% url 'django-atlassian-connect-installed' %}"
+            "installed": "{% url 'django-atlassian-connect-installed' %}",
+            "uninstalled": "{% url 'django-atlassian-connect-uninstalled' %}",
+            "enabled": "{% url 'django-atlassian-connect-enabled' %}",
+            "disabled": "{% url 'django-atlassian-connect-disabled' %}"
         },
         {% endblock %}
     "scopes": 

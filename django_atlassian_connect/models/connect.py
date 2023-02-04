@@ -25,7 +25,8 @@ class SecurityContext(models.base.Model):
     host = models.CharField(max_length=512, null=False, blank=False)
     product_type = models.CharField(max_length=512, null=False, blank=False)
     oauth_client_id = models.CharField(max_length=512, null=True, blank=True)
-
+    installed = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True)
     objects = SecurityContextManager()
 
     def create_token(self, method=None, uri=None, account=None):

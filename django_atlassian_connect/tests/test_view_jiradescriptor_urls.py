@@ -12,6 +12,21 @@ urlpatterns = [
         name="django-atlassian-connect-installed",
     ),
     url(
+        r"^uninstalled/$",
+        views.LifecycleUninstalled.as_view(),
+        name="django-atlassian-connect-uninstalled",
+    ),
+    url(
+        r"^enabled/$",
+        views.LifecycleEnabled.as_view(),
+        name="django-atlassian-connect-enabled",
+    ),
+    url(
+        r"^disabled/$",
+        views.LifecycleDisabled.as_view(),
+        name="django-atlassian-connect-disabled",
+    ),
+    url(
         r"^test-jira/$",
         TestAtlassianConnectJiraApp.as_view(),
         name="test-jira-descriptor",

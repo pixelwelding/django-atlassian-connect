@@ -65,6 +65,7 @@ class LifecycleInstalled(View):
                 sc.host = host
                 update = True
             if update:
+                sc.installed = True
                 sc.save()
         else:
             # Create a new entry on our database of connections
@@ -75,6 +76,8 @@ class LifecycleInstalled(View):
             sc.client_key = client_key
             sc.product_type = product_type
             sc.oauth_client_id = oauth_client_id
+            sc.installed = True
+            sc.enabled = False
             sc.save()
 
         return HttpResponse(status=204)
@@ -82,6 +85,48 @@ class LifecycleInstalled(View):
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(LifecycleInstalled, self).dispatch(*args, **kwargs)
+
+
+class LifecycleEnabled(View):
+    def post(self, request, *args, **kwargs):
+        post = json.loads(request.body)
+        key = post["key"]
+        sc = SecurityContext.objects.get(key=key)
+        sc.enabled = True
+        sc.save()
+        return HttpResponse(status=204)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LifecycleEnabled, self).dispatch(*args, **kwargs)
+
+
+class LifecycleDisabled(View):
+    def post(self, request, *args, **kwargs):
+        post = json.loads(request.body)
+        key = post["key"]
+        sc = SecurityContext.objects.get(key=key)
+        sc.enabled = False
+        sc.save()
+        return HttpResponse(status=204)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LifecycleDisabled, self).dispatch(*args, **kwargs)
+
+
+class LifecycleUninstalled(View):
+    def post(self, request, *args, **kwargs):
+        post = json.loads(request.body)
+        key = post["key"]
+        sc = SecurityContext.objects.get(key=key)
+        sc.installed = False
+        sc.save()
+        return HttpResponse(status=204)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LifecycleUninstalled, self).dispatch(*args, **kwargs)
 
 
 class ApplicationDescriptor(TemplateView):

@@ -7,7 +7,7 @@ from django_atlassian_connect.models.connect import SecurityContext
 
 
 class SecurityContextAdmin(admin.ModelAdmin):
-    list_display = ["client_key", "key", "host", "product_type"]
+    list_display = ["client_key", "key", "host", "product_type", "installed", "enabled"]
     list_filter = ("key", "product_type")
 
 
