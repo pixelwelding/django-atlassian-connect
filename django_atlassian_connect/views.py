@@ -50,23 +50,15 @@ class LifecycleInstalled(View):
             except ObjectDoesNotExist:
                 sc = None
         if sc:
-            update = False
             # Confirm that the shared key is the same, otherwise update it
             if sc.shared_secret != shared_secret:
                 sc.shared_secret = shared_secret
-                update = True
             if sc.client_key != client_key:
                 sc.client_key = client_key
-                update = True
             if sc.oauth_client_id != oauth_client_id:
                 sc.oauth_client_id = oauth_client_id
-                update = True
             if sc.host != host:
                 sc.host = host
-                update = True
-            if update:
-                sc.installed = True
-                sc.save()
         else:
             # Create a new entry on our database of connections
             sc = SecurityContext()
@@ -76,9 +68,10 @@ class LifecycleInstalled(View):
             sc.client_key = client_key
             sc.product_type = product_type
             sc.oauth_client_id = oauth_client_id
-            sc.installed = True
-            sc.enabled = False
-            sc.save()
+
+        sc.installed = True
+        sc.enabled = False
+        sc.save()
 
         return HttpResponse(status=204)
 
