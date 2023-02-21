@@ -43,7 +43,7 @@ class LifecycleInstalled(View):
         # Check if a security context with only the key exists or one with the
         # same host
         try:
-            sc = SecurityContext.objects.get(key=key)
+            sc = SecurityContext.objects.get(client_key=client_key)
         except ObjectDoesNotExist:
             try:
                 sc = SecurityContext.objects.get(host=host)
