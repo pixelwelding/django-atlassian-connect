@@ -83,8 +83,8 @@ class LifecycleInstalled(View):
 class LifecycleEnabled(View):
     def post(self, request, *args, **kwargs):
         post = json.loads(request.body)
-        key = post["key"]
-        sc = SecurityContext.objects.get(key=key)
+        client_key = post["clientKey"]
+        sc = SecurityContext.objects.get(client_key=client_key)
         sc.enabled = True
         sc.save()
         return HttpResponse(status=204)
@@ -97,8 +97,8 @@ class LifecycleEnabled(View):
 class LifecycleDisabled(View):
     def post(self, request, *args, **kwargs):
         post = json.loads(request.body)
-        key = post["key"]
-        sc = SecurityContext.objects.get(key=key)
+        client_key = post["clientKey"]
+        sc = SecurityContext.objects.get(client_key=client_key)
         sc.enabled = False
         sc.save()
         return HttpResponse(status=204)
@@ -111,8 +111,8 @@ class LifecycleDisabled(View):
 class LifecycleUninstalled(View):
     def post(self, request, *args, **kwargs):
         post = json.loads(request.body)
-        key = post["key"]
-        sc = SecurityContext.objects.get(key=key)
+        client_key = post["clientKey"]
+        sc = SecurityContext.objects.get(client_key=client_key)
         sc.installed = False
         sc.save()
         return HttpResponse(status=204)
