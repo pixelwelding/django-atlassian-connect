@@ -30,8 +30,8 @@
           {% endfor %}
         ],
         {% endblock %}
-    "modules":
-        {% block modules %}
-        {{ modules|safe }}
-        {% endblock %}
+    "modules": {
+      {% block modules %}
+      {% endblock %}
+    }
 }

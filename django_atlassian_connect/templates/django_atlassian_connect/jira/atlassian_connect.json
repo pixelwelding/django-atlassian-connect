@@ -1,0 +1,41 @@
+{% extends "django_atlassian_connect/atlassian_connect_base.json" %}
+{% block modules %}
+  {{ block.super }}
+  {% block jiramodules %}
+    "jiraEntityProperties": {% autoescape off %}{{ properties.generate_json }}{% endautoescape %}, 
+  {% endblock %}
+  {% block webhooks %}
+    "webhooks": [
+    {% block jirawebhooks %}
+      {
+        "event": "jira:issue_updated",
+        "url": "{% url 'jira-issue-field-updated' %}"
+      },
+      {
+        "event": "jira:issue_created",
+        "url": "{% url 'jira-issue-updated' %}"
+      },
+      {
+        "event": "jira:issue_deleted",
+        "url": "{% url 'jira-issue-updated' %}"
+      },
+      {
+        "event": "issuelink_created",
+        "url": "{% url 'jira-issue-link-updated' %}"
+      },
+      {
+        "event": "issuelink_deleted",
+        "url": "{% url 'jira-issue-link-updated' %}"
+      },
+      {
+        "event": "issue_property_set",
+        "url": "{% url 'jira-issue-property-updated' %}?issueKey=${issue.key}"
+      },
+      {
+        "event": "issue_property_deleted",
+        "url": "{% url 'jira-issue-property-updated' %}?issueKey=${issue.key}"
+      }
+    {% endblock %}
+    ]
+  {% endblock webhooks %}
+{% endblock modules %}
