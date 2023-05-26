@@ -277,7 +277,7 @@ class HttpResponseNoContent(HttpResponse):
 
 
 class AtlassianConnectPage(TemplateView):
-    no_license_template_name = "no_license.html"
+    no_license_template_name = "django_atlassian_connect/no_license.html"
 
     @method_decorator(xframe_options_exempt)
     @method_decorator(jwt_required)
