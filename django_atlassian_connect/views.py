@@ -61,6 +61,7 @@ class LifecycleInstalled(View):
         except MultiValueDictKeyError:
             return HttpResponseBadRequest()
 
+        created = False
         # Store the security context
         # https://developer.atlassian.com/cloud/jira/platform/authentication-for-apps/
         # Check if a security context with only the key exists or one with the
@@ -91,11 +92,12 @@ class LifecycleInstalled(View):
             sc.client_key = client_key
             sc.product_type = product_type
             sc.oauth_client_id = oauth_client_id
+            created = True
 
         sc.installed = True
         sc.enabled = False
         sc.save()
-        signals.lifecycle_installed.send(sender=sc)
+        signals.lifecycle_installed.send(sender=sc, created=created)
 
         return HttpResponse(status=204)
 

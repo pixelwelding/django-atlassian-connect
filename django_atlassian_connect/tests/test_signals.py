@@ -34,6 +34,14 @@ class TestSignals(TestCase):
 
         self.assertTrue(mock_installed.called)
         self.assertEqual(mock_installed.call_args.kwargs["sender"], sc)
+        self.assertEqual(mock_installed.call_args.kwargs["created"], True)
+
+        response = self.client.post(
+            reverse("django-atlassian-connect-installed"),
+            payload,
+            content_type="application/json",
+        )
+        self.assertEqual(mock_installed.call_args.kwargs["created"], False)
 
         response = self.client.post(
             reverse("django-atlassian-connect-enabled"),
