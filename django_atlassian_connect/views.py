@@ -28,6 +28,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 
+from django_atlassian_connect import signals
 from django_atlassian_connect.decorators import jwt_required
 from django_atlassian_connect.fields import registry_fields
 from django_atlassian_connect.models.connect import SecurityContext
@@ -94,6 +95,7 @@ class LifecycleInstalled(View):
         sc.installed = True
         sc.enabled = False
         sc.save()
+        signals.lifecycle_installed.send(sender=sc)
 
         return HttpResponse(status=204)
 
@@ -109,6 +111,7 @@ class LifecycleEnabled(View):
         sc = SecurityContext.objects.get(client_key=client_key)
         sc.enabled = True
         sc.save()
+        signals.lifecycle_enabled.send(sender=sc)
         return HttpResponse(status=204)
 
     @method_decorator(csrf_exempt)
@@ -123,6 +126,7 @@ class LifecycleDisabled(View):
         sc = SecurityContext.objects.get(client_key=client_key)
         sc.enabled = False
         sc.save()
+        signals.lifecycle_disabled.send(sender=sc)
         return HttpResponse(status=204)
 
     @method_decorator(csrf_exempt)
@@ -137,6 +141,7 @@ class LifecycleUninstalled(View):
         sc = SecurityContext.objects.get(client_key=client_key)
         sc.installed = False
         sc.save()
+        signals.lifecycle_uninstalled.send(sender=sc)
         return HttpResponse(status=204)
 
     @method_decorator(csrf_exempt)
