@@ -50,10 +50,6 @@ class IssueFieldChangedRegistry:
         self._registry.append(inst)
 
     def field_changed(self, sc, issue, changelog):
-        # Check if the updated value is the same
-        if changelog["to"] == changelog["from"]:
-            return
-
         for r in self._registry:
             changed_field_name = r.get_changed_field_name(sc)
             if changed_field_name:
