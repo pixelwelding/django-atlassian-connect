@@ -91,6 +91,8 @@ class IssuePropertyChangedRegistry:
                         )
                     )
                     r.property_changed(sc, deleted, issue_key, prop)
+            else:
+                logger.warning("{} does not provide property key".format(r))
 
 
 class IssuePropertyRegistry:

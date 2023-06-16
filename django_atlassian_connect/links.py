@@ -51,7 +51,7 @@ class IssueLinkChangedRegistry:
                     logger.debug("IssueLinkChanged id found {}".format(changed_link_id))
                     r.link_changed(sc, created, link_changed)
                 continue
-            raise NotImplementedError
+            logger.warning("{} does not provide link names or link ids".format(r))
 
 
 registry_link_changed = IssueLinkChangedRegistry()

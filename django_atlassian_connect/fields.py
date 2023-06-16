@@ -74,7 +74,7 @@ class IssueFieldChangedRegistry:
                     )
                     r.field_changed(sc, issue, changelog)
                 continue
-            raise NotImplementedError
+            logger.warning("{} does not provide field names or field ids".format(r))
 
 
 registry_fields = IssueFieldRegistry()
