@@ -29,7 +29,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 
 from django_atlassian_connect import signals
-from django_atlassian_connect.decorators import jwt_required
+from django_atlassian_connect.decorators import jwt_asymmetric_required, jwt_required
 from django_atlassian_connect.fields import registry_fields
 from django_atlassian_connect.models.connect import SecurityContext
 from django_atlassian_connect.properties import registry_properties
@@ -102,6 +102,7 @@ class LifecycleInstalled(View):
         return HttpResponse(status=204)
 
     @method_decorator(csrf_exempt)
+    @method_decorator(jwt_asymmetric_required)
     def dispatch(self, *args, **kwargs):
         return super(LifecycleInstalled, self).dispatch(*args, **kwargs)
 
@@ -147,6 +148,7 @@ class LifecycleUninstalled(View):
         return HttpResponse(status=204)
 
     @method_decorator(csrf_exempt)
+    @method_decorator(jwt_asymmetric_required)
     def dispatch(self, *args, **kwargs):
         return super(LifecycleUninstalled, self).dispatch(*args, **kwargs)
 

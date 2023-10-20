@@ -4,6 +4,18 @@ from __future__ import unicode_literals
 from functools import wraps
 
 
+def jwt_asymmetric_required(view_func):
+    """
+    Make the function be validated through JWTAuthenticationMiddleware and processed if the JWT is valid or raise a PermissionDenied if not.
+    """
+
+    def decorator(*args, **kwargs):
+        return view_func(*args, **kwargs)
+
+    decorator.jwt_asymmetric_required = True
+    return wraps(view_func)(decorator)
+
+
 def jwt_required(view_func):
     """
     Make the function be validated through JWTAuthenticationMiddleware and processed if the JWT is valid or raise a PermissionDenied if not.
