@@ -2,6 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from django_atlassian_connect.dynamic import registry_dynamic_modules
+from django_atlassian_connect.models.connect import SecurityContext
 from django_atlassian_connect.properties import IssueProperty, registry_properties
 from django_atlassian_connect.views import JiraDescriptor
 
@@ -35,14 +36,18 @@ class TestProperty(IssueProperty):
 
 
 class TestDynamicProperty(IssueProperty):
-    key = "test_dynamic"
     dynamic = True
     property_key = "django_atlassian.test_dynamic"
     name = ("Test", None)
-    extractions = [
-        ("test.entry", "text", "testEntry"),
-        ("test.date", "date", "testDate"),
-    ]
+
+    def get_key(self, sc=None):
+        return "test_dynamic"
+
+    def get_extractions(self, sc=None):
+        return [
+            ("test.entry", "text", "testEntry"),
+            ("test.date", "date", "testDate"),
+        ]
 
 
 @override_settings(
@@ -85,10 +90,11 @@ class JiraDescriptorTests(TestCase):
 
     def test_dynamic_properties(self):
         registry_properties.register(TestDynamicProperty)
+        sc = SecurityContext()
         response = self.client.get(reverse("django-atlassian-connect-jira-descriptor"))
         json = response.json()
         self.assertEqual(len(json["modules"]["jiraEntityProperties"]), 0)
-        modules = registry_dynamic_modules.modules()
+        modules = registry_dynamic_modules.modules(sc)
         self.assertEqual(
             modules["jiraEntityProperties"][0]["key"], "test-dynamic-issue-property"
         )

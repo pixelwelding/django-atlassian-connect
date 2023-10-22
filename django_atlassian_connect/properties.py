@@ -12,27 +12,27 @@ class IssueProperty:
     extractions = []
     dynamic = False
 
-    def _generate_name(self):
+    def _generate_name(self, sc=None):
         name = {}
-        name["value"] = self.get_name()
-        i18n = self.get_i18n()
+        name["value"] = self.get_name(sc)
+        i18n = self.get_i18n(sc)
         if i18n:
             name["i18n"] = i18n
         return name
 
-    def get_key(self):
+    def get_key(self, sc=None):
         if self.key is None:
             raise NotImplementedError
         else:
             return self.key
 
-    def get_property_key(self):
+    def get_property_key(self, sc=None):
         if self.property_key is None:
             raise NotImplementedError
         else:
             return self.property_key
 
-    def get_name(self):
+    def get_name(self, sc=None):
         if self.name is None:
             raise NotImplementedError
         else:
@@ -41,7 +41,7 @@ class IssueProperty:
             else:
                 return self.name[0]
 
-    def get_i18n(self):
+    def get_i18n(self, sc=None):
         if self.name is None:
             raise NotImplementedError
         else:
@@ -50,7 +50,7 @@ class IssueProperty:
             else:
                 return self.name[1]
 
-    def get_extractions(self):
+    def get_extractions(self, sc=None):
         if self.extractions is None:
             raise NotImplementedError
         else:
@@ -65,17 +65,18 @@ class IssueProperty:
     def set(self, sc, issue, value):
         raise NotImplementedError
 
-    def to_module(self):
+    def to_module(self, sc=None):
         return {
-            "key": re.sub(r"([^a-zA-Z0-9-])", "-", self.get_key()) + "-issue-property",
-            "name": self._generate_name(),
+            "key": re.sub(r"([^a-zA-Z0-9-])", "-", self.get_key(sc))
+            + "-issue-property",
+            "name": self._generate_name(sc),
             "entityType": "issue",
             "keyConfigurations": [
                 {
-                    "propertyKey": self.get_property_key(),
+                    "propertyKey": self.get_property_key(sc),
                     "extractions": [
                         {"objectName": y[0], "type": y[1], "alias": y[2]}
-                        for y in self.get_extractions()
+                        for y in self.get_extractions(sc)
                     ],
                 }
             ],
