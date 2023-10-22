@@ -35,7 +35,7 @@ class IssueFieldRegistry:
     def register(self, cls):
         self._registry.append(cls())
 
-    def generate_json():
+    def generate_json(self):
         # Iterate over the registry
         # Return the json definition of it
         pass
