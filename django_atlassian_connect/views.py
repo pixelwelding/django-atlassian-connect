@@ -30,6 +30,7 @@ from django.views.generic.base import TemplateView
 
 from django_atlassian_connect import signals
 from django_atlassian_connect.decorators import jwt_asymmetric_required, jwt_required
+from django_atlassian_connect.dynamic import registry_dynamic_modules
 from django_atlassian_connect.fields import registry_fields
 from django_atlassian_connect.models.connect import SecurityContext
 from django_atlassian_connect.properties import registry_properties
@@ -112,6 +113,9 @@ class LifecycleEnabled(View):
         post = json.loads(request.body)
         client_key = post["clientKey"]
         sc = SecurityContext.objects.get(client_key=client_key)
+        # Register the dynamic modules
+        registry_dynamic_modules.register(sc)
+        # Finally mark as enabled
         sc.enabled = True
         sc.save()
         signals.lifecycle_enabled.send(sender=sc)
@@ -127,6 +131,9 @@ class LifecycleDisabled(View):
         post = json.loads(request.body)
         client_key = post["clientKey"]
         sc = SecurityContext.objects.get(client_key=client_key)
+        # Unregister the dynamic modules
+        registry_dynamic_modules.remove(sc)
+        # Finally mark as disabled
         sc.enabled = False
         sc.save()
         signals.lifecycle_disabled.send(sender=sc)

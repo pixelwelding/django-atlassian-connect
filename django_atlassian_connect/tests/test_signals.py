@@ -4,8 +4,10 @@ import atlassian_jwt
 from django.test import TestCase
 from django.urls import reverse
 
+from django_atlassian_connect.dynamic import DynamicModuleRegistry
 from django_atlassian_connect.middleware import AsymmetricAuthenticator, encode_token
 from django_atlassian_connect.models.connect import SecurityContext
+from django_atlassian_connect.tests.test_dynamic import fake_register, fake_remove
 from django_atlassian_connect.tests.test_signed import (
     fake_get_key,
     private_key,
@@ -30,6 +32,8 @@ class TestSignals(TestCase):
     @patch("django_atlassian_connect.signals.lifecycle_enabled.send")
     @patch("django_atlassian_connect.signals.lifecycle_disabled.send")
     @patch("django_atlassian_connect.signals.lifecycle_uninstalled.send")
+    @patch.object(DynamicModuleRegistry, "register", fake_register)
+    @patch.object(DynamicModuleRegistry, "remove", fake_remove)
     @patch.object(AsymmetricAuthenticator, "get_key", fake_get_key)
     def test_all(self, mock_uninstalled, mock_disabled, mock_enabled, mock_installed):
         payload = self.get_install_payload()

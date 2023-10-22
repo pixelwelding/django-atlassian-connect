@@ -10,6 +10,15 @@ class IssueProperty:
     property_key = None
     name = ()
     extractions = []
+    dynamic = False
+
+    def _generate_name(self):
+        name = {}
+        name["value"] = self.get_name()
+        i18n = self.get_i18n()
+        if i18n:
+            name["i18n"] = i18n
+        return name
 
     def get_key(self):
         if self.key is None:
@@ -56,6 +65,22 @@ class IssueProperty:
     def set(self, sc, issue, value):
         raise NotImplementedError
 
+    def to_module(self):
+        return {
+            "key": re.sub(r"([^a-zA-Z0-9-])", "-", self.get_key()) + "-issue-property",
+            "name": self._generate_name(),
+            "entityType": "issue",
+            "keyConfigurations": [
+                {
+                    "propertyKey": self.get_property_key(),
+                    "extractions": [
+                        {"objectName": y[0], "type": y[1], "alias": y[2]}
+                        for y in self.get_extractions()
+                    ],
+                }
+            ],
+        }
+
 
 class IssuePropertyChangedMixin:
     changed_property_key = None
@@ -99,13 +124,11 @@ class IssuePropertyRegistry:
     def __init__(self):
         self._registry = []
 
-    def _generate_name(self, p):
-        name = {}
-        name["value"] = p.get_name()
-        i18n = p.get_i18n()
-        if i18n:
-            name["i18n"] = i18n
-        return name
+    def __iter__(self):
+        return iter(self._registry)
+
+    def __len__(self):
+        return len(self._registry)
 
     def register(self, cls):
         self._registry.append(cls())
@@ -116,23 +139,7 @@ class IssuePropertyRegistry:
 
     def generate_json(self):
         # Iterate over the registry and return the json definition of it
-        properties = [
-            {
-                "key": re.sub(r"([^a-zA-Z0-9-])", "-", x.get_key()) + "-issue-property",
-                "name": self._generate_name(x),
-                "entityType": "issue",
-                "keyConfigurations": [
-                    {
-                        "propertyKey": x.get_property_key(),
-                        "extractions": [
-                            {"objectName": y[0], "type": y[1], "alias": y[2]}
-                            for y in x.get_extractions()
-                        ],
-                    }
-                ],
-            }
-            for x in self._registry
-        ]
+        properties = [x.to_module() for x in self._registry if x.dynamic == False]
         return json.dumps(properties)
 
 
