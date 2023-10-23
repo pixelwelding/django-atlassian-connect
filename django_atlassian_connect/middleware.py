@@ -112,20 +112,6 @@ class SymmetricAuthenticator(Authenticator):
     def validate_claims(self, claims):
         pass
 
-    def validate(self, request, qsh_check_exempt=False):
-        claims = super().validate(request, qsh_check_exempt=qsh_check_exempt)
-
-        # Set the request values
-        sc = SecurityContext.objects.filter(client_key=claims["iss"]).get()
-        request.atlassian_sc = sc
-        request.atlassian_account_id = claims.get("sub")
-        request.atlassian_session_token = sc.create_session_token(
-            request.atlassian_account_id
-        )
-        request.atlassian_host = sc.host
-        request.atlassian_client = request.build_absolute_uri("/")
-        request.atlassian_license = request.GET.get("lic", "active")
-
 
 class AsymmetricAuthenticator(Authenticator):
     def get_key(self, header, claims):
@@ -162,5 +148,17 @@ class AuthenticationMiddleware(MiddlewareMixin):
             claims = auth.validate(request, qsh_check_exempt=jwt_qsh_exempt)
         except Exception as e:
             raise PermissionDenied("Invalid JWT") from None
+
+        if jwt_required:
+            # Set the request values only for symmetric authentication
+            sc = SecurityContext.objects.filter(client_key=claims["iss"]).get()
+            request.atlassian_sc = sc
+            request.atlassian_account_id = claims.get("sub")
+            request.atlassian_session_token = sc.create_session_token(
+                request.atlassian_account_id
+            )
+            request.atlassian_host = sc.host
+            request.atlassian_client = request.build_absolute_uri("/")
+            request.atlassian_license = request.GET.get("lic", "active")
 
         return None
