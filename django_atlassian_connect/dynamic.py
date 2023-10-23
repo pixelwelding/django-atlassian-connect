@@ -15,12 +15,15 @@ class DynamicModuleRegistry:
     def register(self, sc):
         j = JIRA(sc.host, jwt={"secret": sc.shared_secret, "payload": {"iss": sc.key}})
         modules = self.modules(sc)
+        registered_modules = j.dynamic_modules()
+        if registered_modules:
+            j.remove_dynamic_modules()
         if modules:
             j.register_dynamic_modules(modules)
 
     def remove(self, sc):
         j = JIRA(sc.host, jwt={"secret": sc.shared_secret, "payload": {"iss": sc.key}})
-        j.remove_dynamic_modules(modules)
+        j.remove_dynamic_modules()
 
 
 registry_dynamic_modules = DynamicModuleRegistry()
