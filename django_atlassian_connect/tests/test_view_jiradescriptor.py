@@ -87,14 +87,21 @@ class JiraDescriptorTests(TestCase):
         self.assertTrue(
             "i18n" not in json["modules"]["jiraEntityProperties"][0]["name"]
         )
+        sc = SecurityContext()
+        modules = registry_dynamic_modules.modules(sc)
+        registry_properties.unregister(TestProperty)
+        self.assertEqual(modules, {})
 
     def test_dynamic_properties(self):
         registry_properties.register(TestDynamicProperty)
+        registry_properties.register(TestProperty)
         sc = SecurityContext()
         response = self.client.get(reverse("django-atlassian-connect-jira-descriptor"))
         json = response.json()
-        self.assertEqual(len(json["modules"]["jiraEntityProperties"]), 0)
+        self.assertEqual(len(json["modules"]["jiraEntityProperties"]), 1)
         modules = registry_dynamic_modules.modules(sc)
+        registry_properties.unregister(TestDynamicProperty)
+        registry_properties.unregister(TestProperty)
         self.assertEqual(
             modules["jiraEntityProperties"][0]["key"], "test-dynamic-issue-property"
         )

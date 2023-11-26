@@ -134,6 +134,9 @@ class IssuePropertyRegistry:
     def register(self, cls):
         self._registry.append(cls())
 
+    def unregister(self, cls):
+        self._registry = [x for x in self._registry if type(x) != cls]
+
     def update(self, sc, issue):
         for x in self._registry:
             x.update(sc, issue)

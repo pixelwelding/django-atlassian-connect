@@ -6,10 +6,9 @@ from django_atlassian_connect.properties import registry_properties
 class DynamicModuleRegistry:
     def modules(self, sc):
         ret = {}
-        if len(registry_properties):
-            ret["jiraEntityProperties"] = [
-                x.to_module(sc) for x in registry_properties if x.dynamic == True
-            ]
+        props = [x.to_module(sc) for x in registry_properties if x.dynamic == True]
+        if props:
+            ret["jiraEntityProperties"] = props
         return ret
 
     def register(self, sc):
