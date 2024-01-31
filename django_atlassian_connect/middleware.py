@@ -147,7 +147,7 @@ class AuthenticationMiddleware(MiddlewareMixin):
         try:
             claims = auth.validate(request, qsh_check_exempt=jwt_qsh_exempt)
         except Exception as e:
-            raise PermissionDenied("Invalid JWT") from None
+            raise PermissionDenied("Invalid JWT: {}".format(e)) from None
 
         if jwt_required:
             # Set the request values only for symmetric authentication
